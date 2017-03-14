@@ -7,12 +7,42 @@
 //   1. The first few numbers (called the prefix)
 //   2. The number of digits in the number (called the length)
 
-var detectNetwork = function(cardNumber) {
-  // Note: `cardNumber` will always be a string
-  // The Diner's Club network always starts with a 38 or 39 and is 14 digits long
-  // The American Express network always starts with a 34 or 37 and is 15 digits long
+// Note: `cardNumber` will always be a string 
+var detectNetwork = function(cardNumber) { 
+  var cards = [
+  				{ name: 'American Express', prefix: [34, 37], length: [15] }, 
+  				{ name: "Diner's Club", prefix: [38, 39], length: [14] },
+  				{ name: 'Visa', prefix: [4], length: [13, 16, 19] },
+  				{ name: 'MasterCard', prefix: [51, 52, 53, 54, 55], length: [16] },
+  				{ name: 'Discover', prefix: [6011, 644, 645, 646, 647, 648, 649, 65], length: [16, 19] },
+  				{ name: 'Maestro', prefix: [5018, 5020, 5038, 6304], length: [12, 13, 14, 15, 16, 17, 18, 19] },
+  				{ name: 'China UnionPay', prefix: [[622126, 622925], [624, 626], [6282, 6288]], length: [16, 17, 18, 19] },
+  				{ name: 'Switch', prefix: [4903, 4905, 4911, 4936, 564182, 633110, 6333, 6759], length: [16, 18, 19] }
+              ]
 
-  // Once you've read this, go ahead and try to implement this function, then return to the console.
+  var match = cards.find(card => matchCard(card, cardNumber)); 
+  return match ? match.name : 'Not a valid card number';
 };
 
-
+function matchCard(card, number) {
+  var prefix = card.prefix.some(start => {
+  	if(Array.isArray(start)) {
+  	  for(var i = start[0]; i <= start[1]; i++) {
+  	  	if(number.startsWith(i)) {
+  	  	  return true;
+  	  	}
+  	  }
+  	  return false;
+  	} else {
+  	  if((number.startsWith(4903) || number.startsWith(4905) || 
+  	  	 number.startsWith(4911) || number.startsWith(4936))) { // &&
+  	  	 //number.length === 16 || number.length === 19) {
+  	  	return card.name === 'Switch';
+  	  } else {
+  	  	return number.startsWith(start);
+  	  }
+  	}
+  });
+  var length = card.length.some(len => number.length === len);
+  return prefix && length; 
+}
